@@ -756,6 +756,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
 
+        // We need to handle touch events to links if they are disabled.
+        if (!isEnabled &&
+            EnhancedMovementMethod.handleLinkTouchEvent(widget = this, text = text, event = event).handled) {
+            return false
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && event.action == MotionEvent.ACTION_DOWN) {
             // we'll use these values in OnLongClickListener
