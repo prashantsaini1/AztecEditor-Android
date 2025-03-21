@@ -242,6 +242,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
     private var overrideSamsungPredictiveBehavior: Boolean = false
+    private var allowLinkTapWhenDisable: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -757,7 +758,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         // We need to handle touch events to links if they are disabled.
-        if (!isEnabled &&
+        if (allowLinkTapWhenDisable && !isEnabled &&
             EnhancedMovementMethod.handleLinkTouchEvent(widget = this, text = text, event = event).handled) {
             return false
         }
@@ -1923,6 +1924,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
     fun enableSamsungPredictiveBehaviorOverride() {
         overrideSamsungPredictiveBehavior = true
+    }
+
+    fun enableLinkTapWhenDisable() {
+        allowLinkTapWhenDisable = true
     }
 
     fun isMediaDeletedListenerDisabled(): Boolean {
