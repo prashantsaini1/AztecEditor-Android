@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -95,7 +96,11 @@ class ComposePlaceholderManager(
     fun Draw() {
         val density = LocalDensity.current
 
-        val values = composeViewState.collectAsState().value.values.filter { it.visible }.sortedBy { it.topMargin }
+        val values = composeViewState.map { map ->
+            map.values.filter { it.visible }.sortedBy { it.topMargin }
+        }.collectAsState(
+            emptyList()
+        ).value
 
         values.forEach { composeView ->
             Box(
@@ -420,11 +425,11 @@ class ComposePlaceholderManager(
             val heightSame = existingView.height == newHeight
             val topMarginSame = existingView.topMargin == newTopPadding
             val leftMarginSame = existingView.leftMargin == newLeftPadding
-            if (widthSame && heightSame && topMarginSame && leftMarginSame) {
+            val attrsSame = existingView.attrs == attrs
+            if (widthSame && heightSame && topMarginSame && leftMarginSame && attrsSame) {
                 return
             }
         }
-
         composeViewState.value = composeViewState.value.let { state ->
             val mutableState = state.toMutableMap()
             mutableState[uuid] = ComposeView(
@@ -604,9 +609,11 @@ class ComposePlaceholderManager(
         launch {
             positionToIdMutex.withLock {
                 composeViewState.value = composeViewState.value.let { state ->
-                    state.mapValues { (_, value) -> value.copy(
-                        visible = View.VISIBLE == visibility
-                    ) }
+                    state.mapValues { (_, value) ->
+                        value.copy(
+                            visible = View.VISIBLE == visibility
+                        )
+                    }
                 }
             }
         }
