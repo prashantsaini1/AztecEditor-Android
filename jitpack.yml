@@ -1,0 +1,5 @@
+jdk:
+  - openjdk17
+install:
+  # Build all modules but exclude the S3 publishing tasks that are failing
+  - ./gradlew clean assemble publishToMavenLocal -x:wordpress-shortcodes:prepareToPublishToS3 -x:glide-loader:prepareToPublishToS3 -x:wordpress-comments:prepareToPublishToS3 -x:picasso-loader:prepareToPublishToS3 -x:media-placeholders:prepareToPublishToS3 -xtest -xlint
